@@ -24,6 +24,7 @@ class Blog(models.Model):
 
     category = models.ForeignKey(CategoryBlog, on_delete=models.CASCADE, verbose_name='Categoria')
     title = models.CharField(max_length=100, verbose_name='Titulo')
+    slug = models.SlugField(unique=True, max_length=100, verbose_name='Slug')
     header = models.CharField(max_length=200, verbose_name='Encabezado')
     description = models.TextField(verbose_name='Descripción')
     image = models.ImageField(upload_to='blog', null=True, blank=True, verbose_name='Imagen')

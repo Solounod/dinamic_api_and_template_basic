@@ -15,7 +15,7 @@ class CategoryProduct(models.Model):
     update_datetime = models.DateTimeField(auto_now_add=True, auto_now=False, verbose_name='Fecha modificación')
 
     def __str__(self):
-        return f"{self.id}-{self.category_workshop}"
+        return f"{self.id}-{self.categoryproduct}"
 
 
 
@@ -27,7 +27,7 @@ class Product(models.Model):
 
     category = models.ForeignKey(CategoryProduct, on_delete=models.CASCADE, verbose_name='Categoria')
     name = models.CharField(max_length=100, verbose_name='Nombre')
-    price = models.IntegerField(max_digits=10, verbose_name='Precio')
+    price = models.PositiveIntegerField(verbose_name='Precio')
     description = models.TextField(verbose_name='Descripción')
     image = models.ImageField(upload_to='products', null=True, blank=True, verbose_name='Imagen')
     datetime_creation = models.DateTimeField(auto_now_add=False, auto_now=True, verbose_name='Fecha creación')
