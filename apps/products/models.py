@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils.text import slugify
 # Create your models here.
 
 
@@ -11,8 +11,14 @@ class CategoryProduct(models.Model):
         ordering = ['id']
 
     categoryproduct = models.CharField(max_length=100, verbose_name='Categoria de productos')
+    slug_category_product = models.SlugField(max_length=100, verbose_name='Slug', unique=True, blank=True)
     datetime_creation = models.DateTimeField(auto_now_add=False, auto_now=True, verbose_name='Fecha creación')
     update_datetime = models.DateTimeField(auto_now_add=True, auto_now=False, verbose_name='Fecha modificación')
+
+    def save(self, *args, **kwarg):
+        if not self.slug_category_product:
+            self.slug_category_product = slugify(self.categoryproduct)
+        super().save(*args, **kwarg)
 
     def __str__(self):
         return f"{self.id}-{self.categoryproduct}"

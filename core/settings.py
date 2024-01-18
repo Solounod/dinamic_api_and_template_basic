@@ -53,6 +53,7 @@ PROJECT_APPS = [
     'apps.products',
     'apps.services',
     'apps.contact',
+    'apps.blog',
     
 ]
 

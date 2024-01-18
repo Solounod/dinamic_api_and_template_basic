@@ -6,20 +6,36 @@ from .serializers import ProductSerializer, CategoryProductSerializer, ImagesPro
 from .pagination import SmallSetPagination, MediumSetPagination, LargeSetPagination
 # Create your views here.
 
-class ProductList(ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    pagination_class = SmallSetPagination
-
-class ProductDetail(RetrieveAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
 
 class CategoryProductList(ListAPIView):
     queryset = CategoryProduct.objects.all()
     serializer_class = CategoryProductSerializer
 
+class ProductList(ListAPIView):
+    
+    serializer_class = ProductSerializer
+    pagination_class = SmallSetPagination
+
+    def get_queryset(self):
+        category = self.kwargs['list_products']
+        list_products = Product.objects.filter(category__slug_category_product=category)
+        return list_products
+        
+
+class ProductDetail(RetrieveAPIView):
+    
+    serializer_class = ProductSerializer
+    lookup_field = 'pk'
+    queryset = Product.objects.filter()
+
+
+
 class ImagesProductList(ListAPIView):
-    queryset = ImagesProduct.objects.all()
+    
     serializer_class = ImagesProductSerializer
     pagination_class = SmallSetPagination
+
+    def get_queryset(self):
+        product = self.kwargs['id']
+        list_images = ImagesProduct.objects.filter(product__id=product)
+        return list_images
