@@ -20,6 +20,16 @@ class ProductList(ListAPIView):
         category = self.kwargs['list_products']
         list_products = Product.objects.filter(category__slug_category_product=category)
         return list_products
+    
+class ProductListSearch(ListAPIView):
+    
+    serializer_class = ProductSerializer
+    pagination_class = SmallSetPagination
+
+    def get_queryset(self, *args, **kwargs):
+        keyword = self.kwargs['keyword']
+        list_products = Product.objects.get_search_products(keyword)
+        return list_products
         
 
 class ProductDetail(RetrieveAPIView):

@@ -1,0 +1,55 @@
+
+
+import './App.css'
+import { useEffect, useState } from 'react';
+import { getSearchProduct } from './api/apitest';
+
+
+function App() {
+  const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState({searchProduct:''});
+
+  const {searchProduct} = search;
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const search = e.target.searchProduct.value;
+    setSearch({searchProduct:search});
+
+    
+  }
+
+  useEffect(() => {
+    async function loadProducts() {
+      const productsdata = await getSearchProduct(searchProduct);
+      console.log(productsdata.results);
+      setProducts(productsdata.results);
+    }
+    loadProducts();
+  }, [searchProduct]);
+
+  const onChange = (e) => {
+    setSearch({ searchProduct: e.target.value });
+  }
+
+
+  return (
+    <>
+      <h1 className=''>Hola</h1>
+        <form action="" method="post" onSubmit={e=>onSubmit(e)}>
+          <input type="text" value={searchProduct} name='searchProduct' placeholder='Busqueda' onChange={onChange}/>
+          <button type="submit">Buscar</button>
+        </form>
+        <div>
+          <h2>Resultados</h2>
+          <ul>
+            {products.map(product => (
+              <li key={product.id}>{product.name}</li>
+            ))}
+          </ul>
+        </div>
+    </>
+  )
+}
+
+export default App

@@ -1,4 +1,5 @@
 from django.db import models
+from .managers import ProductManager
 from django.utils.text import slugify
 # Create your models here.
 
@@ -37,6 +38,7 @@ class Product(models.Model):
     description = models.TextField(verbose_name='Descripción')
     image = models.ImageField(upload_to='products', null=True, blank=True, verbose_name='Imagen')
     datetime_creation = models.DateTimeField(auto_now_add=False, auto_now=True, verbose_name='Fecha creación')
+    objects = ProductManager()
     update_datetime = models.DateTimeField(auto_now_add=True, auto_now=False, verbose_name='Fecha modificación')
 
     def __str__(self):
