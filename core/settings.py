@@ -9,10 +9,10 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
-from pathlib import Path
 import os
 import environ
+from pathlib import Path
+
 
 env = environ.Env()
 environ.Env.read_env()
@@ -54,12 +54,14 @@ PROJECT_APPS = [
     'apps.services',
     'apps.contact',
     'apps.blog',
+    'apps.users',
     
 ]
 
 THIRD_PARTY_APPS = [
     'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 
@@ -166,6 +168,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL ='users.UserAbstract'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

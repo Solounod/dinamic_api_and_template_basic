@@ -16,7 +16,6 @@ function App() {
     const search = e.target.searchProduct.value;
     setSearch({searchProduct:search});
 
-    
   }
 
   useEffect(() => {
