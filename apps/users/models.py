@@ -3,29 +3,41 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 # Create your models here.
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, username, last_name, first_name, password=None):
-        if not email:
-            raise ValueError('El usuario debe tener un correo electrónico')
-        if not username:
-            raise ValueError('El usuario debe tener un nombre de usuario')
+     
+     def _create_user(self, username, email, name,last_name, password, is_staff, is_superuser, **extra_fields):
         user = self.model(
-            last_name=last_name,
-            first_name=first_name,
-            username=username,
-            email=self.normalize_email(email),
-            
+            username = username,
+            email = email,
+            name = name,
+            last_name = last_name,
+            is_staff = is_staff,
+            is_superuser = is_superuser,
+            **extra_fields
         )
         user.set_password(password)
         user.save(using=self.db)
         return user
+     
+     def create_user(self, username, email, name,last_name, password=None, **extra_fields):
+        return self._create_user(
+            username=username,
+            email=self.normalize_email(email),
+            name=name,
+            last_name=last_name,
+            password=password,
+            is_staff=False,
+            is_superuser=False,
+            **extra_fields
+        )
     
-    def create_superuser(self, email, username,last_name, first_name, password=None):
-        user = self.create_user(
+     def create_superuser(self, email, username,last_name, first_name, password=None,**extra_fields):
+        user = self._create_user(
             username=username,
             email=self.normalize_email(email),
             last_name=last_name,
             first_name=first_name,
             password=password
+            **extra_fields
         )
         user.is_admin = True
         user.is_staff = True
