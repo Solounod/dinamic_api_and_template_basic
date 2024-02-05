@@ -49,11 +49,23 @@ class LoginWhitToken(ObtainAuthToken):
     def post(self, request, *args, **kawargs):
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token' : token.key,
-            'user_id': user.pk,
-            'email' : user.email,
-        })
+        if serializer.is_valid():
+            user = serializer.validated_data['user']
+            if user.is_active:
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({
+                    'token' : token.key,
+                    'user_id': user.pk,
+                    'email' : user.email,
+                    'nameuser' : user.username,
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'Usuario inactivo'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class LogoutWhitToken(APIView):
+    def post(self, request, *args, **kawargs):
+        request.user.auth_token.delete()
+        return Response({'message': 'Sesión cerrada correctamente'}, status=status.HTTP_200_OK)
+
