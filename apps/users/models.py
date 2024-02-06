@@ -4,11 +4,11 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 class UserManager(BaseUserManager):
      
-     def _create_user(self, username, email, name,last_name, password, is_staff, is_superuser, **extra_fields):
+     def _create_user(self, username, email, first_name,last_name, password, is_staff, is_superuser, **extra_fields):
         user = self.model(
             username = username,
             email = email,
-            name = name,
+            first_name = first_name,
             last_name = last_name,
             is_staff = is_staff,
             is_superuser = is_superuser,
@@ -18,31 +18,29 @@ class UserManager(BaseUserManager):
         user.save(using=self.db)
         return user
      
-     def create_user(self, username, email, name,last_name, password=None, **extra_fields):
+     def create_user(self, username, email, first_name, last_name, password=None, **extra_fields):
         return self._create_user(
-            username=username,
-            email=self.normalize_email(email),
-            name=name,
-            last_name=last_name,
-            password=password,
-            is_staff=False,
-            is_superuser=False,
-            **extra_fields
-        )
+            username = username,
+            email = self.normalize_email(email),
+            first_name = first_name,
+            last_name = last_name,
+            password = password,           
+            is_superuser = False,
+            is_staff = False,
+            **extra_fields)
     
-     def create_superuser(self, email, username,last_name, first_name, password=None,**extra_fields):
-        user = self._create_user(
-            username=username,
-            email=self.normalize_email(email),
-            last_name=last_name,
-            first_name=first_name,
-            password=password
-            **extra_fields
-        )
-        user.is_admin = True
-        user.is_staff = True
-        user.save(using=self.db)
-        return user
+     def create_superuser(self,username, email, first_name, last_name, password=None,**extra_fields):
+        return self._create_user(
+            username = username,
+            email = self.normalize_email(email),
+            last_name = last_name,
+            first_name = first_name,
+            password = password,
+            is_superuser = True,
+            is_staff = True,
+            **extra_fields)
+        
+        
 
 class UserAbstract(AbstractUser):
     class Meta:
@@ -79,9 +77,6 @@ class UserAbstract(AbstractUser):
     is_active = models.BooleanField(
         default=True, 
         verbose_name='Activo')
-    is_admin = models.BooleanField(
-        default=False, 
-        verbose_name='Administrador')
     is_staff = models.BooleanField(
         default=False, 
         verbose_name='Staff')
@@ -99,10 +94,5 @@ class UserAbstract(AbstractUser):
     def __str__(self):
         return f"{self.id}-{self.username}"
     
-    def has_perm(self,perm, obj=None) -> bool:
-        return True
-    
-    def has_module_perms(self, app_label) -> bool:
-        return True
-    
+
    

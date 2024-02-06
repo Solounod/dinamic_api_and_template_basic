@@ -150,6 +150,8 @@ CSRF_TRUSTED_ORIGINS = [
 #======================^corsheaders end^=======================================
 #==============================================================================
 
+#=====================Settings for user authentication=========================
+
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -168,7 +170,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 AUTH_USER_MODEL ='users.UserAbstract'
+
+TOKEN_EXPIRED_AFTER_SECONDS = 15
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

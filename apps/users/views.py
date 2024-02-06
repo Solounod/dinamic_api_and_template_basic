@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from django.contrib.sessions.models import Session
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from rest_framework import status
@@ -7,7 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 
 from .models import UserAbstract
-from .serializers import UserAbstractSerializer, UserAbstractListSerializer
+from .serializers import UserAbstractSerializer, UserAbstractListSerializer, UserAbstractTokenSerializer
 # Create your views here.
 
 class UserAbstractList(APIView):
@@ -46,26 +49,68 @@ class UserAbstractList(APIView):
     
 
 class LoginWhitToken(ObtainAuthToken):
-    def post(self, request, *args, **kawargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data,
                                            context={'request': request})
         if serializer.is_valid():
             user = serializer.validated_data['user']
             if user.is_active:
                 token, created = Token.objects.get_or_create(user=user)
-                return Response({
-                    'token' : token.key,
-                    'user_id': user.pk,
-                    'email' : user.email,
-                    'nameuser' : user.username,
-                }, status=status.HTTP_200_OK)
+                user_serializer = UserAbstractTokenSerializer(user)
+                if created:
+                    return Response({
+                        'token': token.key,
+                        'user': user_serializer.data,
+                        'message': 'Sesión iniciada correctamente.'
+                    }, status=status.HTTP_201_CREATED)
+                else:
+                    all_sessions = Session.objects.filter(expire_date__gte=datetime.now())
+                    if all_sessions.exists():
+                        for session in all_sessions:
+                            session_data = session.get_decoded()
+                            if user.id == int(session_data.get('_auth_user_id')):
+                                session.delete()
+                    token.delete()
+                    token = Token.objects.create(user = user)
+                    return Response({
+                        'token': token.key,
+                        'user': user_serializer.data,
+                        'message': 'Sesión iniciada correctamente.'
+                    }, status=status.HTTP_201_CREATED)
             else:
-                return Response({'message': 'Usuario inactivo'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'message': 'Usuario inactivo'},
+                                status=status.HTTP_401_UNAUTHORIZED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors,
+                            {'message': 'Usuario o contraseña incorrectos'},
+                            status=status.HTTP_400_BAD_REQUEST)
         
 class LogoutWhitToken(APIView):
-    def post(self, request, *args, **kawargs):
-        request.user.auth_token.delete()
-        return Response({'message': 'Sesión cerrada correctamente'}, status=status.HTTP_200_OK)
-
+    def get(self, request, *args, **kwargs):
+        try:
+            token = request.GET.get('token')
+            print(token)
+            token = Token.objects.filter(key = token).first()
+            print(token)
+            if token:
+                user = token.user
+                print(user)
+                all_sessions = Session.objects.filter(expire_date__gte=datetime.now())
+                if all_sessions.exists():
+                    for session in all_sessions:
+                        session_data = session.get_decoded()
+                        if user.id == int(session_data.get('_auth_user_id')):
+                            session.delete()
+                
+                token.delete()
+                session_message = 'Sesión cerrada correctamente.'
+                token_message = 'Token eliminado correctamente.'
+                return Response({'token_message': token_message, 'session_message': session_message},
+                                status=status.HTTP_200_OK)
+        
+            return Response({'message': 'No se ha encontrado el usuario con el token'},
+                        status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'message': 'No se a encontrado el token'},
+                            status=status.HTTP_409_CONFLICT)   
+            

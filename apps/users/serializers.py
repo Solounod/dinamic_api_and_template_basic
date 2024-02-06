@@ -1,6 +1,18 @@
 from rest_framework import serializers
 from .models import UserAbstract
 
+
+class UserAbstractTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserAbstract
+        fields = ('id',
+                 'username',
+                 'email',
+                 'first_name',
+                 'last_name',
+                 )
+
+
 class UserAbstractSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAbstract
